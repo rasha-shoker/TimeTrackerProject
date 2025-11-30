@@ -1,7 +1,5 @@
 <?php
 
-// test update for pull request
-
 namespace App\Http\Controllers;
 
 use App\Models\Category;
@@ -13,13 +11,13 @@ class CategoryController extends Controller
     public function index()
 
     {
-        // TEST CHANGE
 
          return response()->json(Category::all());
 
     }
 
     public function store(Request $request)
+    
     {
         $request->validate([
             'name' => 'required'
@@ -32,7 +30,7 @@ class CategoryController extends Controller
         return response()->json($cat, 201);
     }
 
-    // Test update to enable pull request
+    // test update
 
 
     public function update(Request $request, $id)
