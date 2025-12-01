@@ -58,7 +58,11 @@ class TimeEntryController extends Controller
     // ============================
     // UPDATE ENTRY
     // ============================
+
+    // test update for PR
+
     public function update(Request $request, $id)
+    
     {
         $request->validate([
             'category_id' => 'required|exists:categories,id',
