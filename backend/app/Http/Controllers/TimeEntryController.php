@@ -62,7 +62,6 @@ class TimeEntryController extends Controller
     // test update for PR
 
     public function update(Request $request, $id)
-    
     {
         $request->validate([
             'category_id' => 'required|exists:categories,id',
@@ -128,6 +127,9 @@ class TimeEntryController extends Controller
     // ============================
     // SUMMARY: DAILY BREAKDOWN
     // ============================
+
+    // reporting ui test change
+
     public function dailyBreakdown()
     {
         $summary = TimeEntry::select(
