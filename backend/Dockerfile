@@ -1,38 +1,37 @@
-# Stage 1: build Laravel app with Composer
 FROM php:8.2-fpm AS builder
 
-# Install system dependencies + PHP extensions
-RUN apt-get update && apt-get install -y \
-    zip unzip git curl libpng-dev libonig-dev libxml2-dev && \
-    docker-php-ext-install pdo pdo_mysql
-
-
 WORKDIR /var/www/html
 
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    zip unzip libpng-dev libonig-dev libxml2-dev
 
-COPY backend/ .
+# Install PHP extensions
+RUN docker-php-ext-install pdo pdo_mysql
 
+# Copy project files
+COPY . .
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Install composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# Install dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-FROM php:8.2-fpm
+FROM php:8.2-cli
 
 WORKDIR /var/www/html
 
-
-RUN apt-get update && apt-get install -y \
-    zip unzip libpng-dev libonig-dev libxml2-dev && \
-    docker-php-ext-install pdo pdo_mysql
-
+# Copy build from first stage
 COPY --from=builder /var/www/html .
 
+# Expose port
+EXPOSE 8080
 
-EXPOSE 80
+# Laravel cache
+RUN php artisan config:cache || true
+RUN php artisan route:cache || true
+RUN php artisan view:cache || true
 
-
-CMD ["php", "-S", "0.0.0.0:80", "-t", "public"]
-
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]
-
+# Start Laravel server
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
