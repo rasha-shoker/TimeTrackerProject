@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y \
 # Install PHP extensions
 RUN docker-php-ext-install pdo pdo_mysql
 
-# Copy project files (correct version!)
-COPY . .
+# Copy ONLY backend folder into image
+COPY ../backend/ . 
 
 # Install composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -18,20 +18,18 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader
 
+
 FROM php:8.2-cli
 
 WORKDIR /var/www/html
 
-# Copy build from first stage
+# Copy build from builder stage
 COPY --from=builder /var/www/html .
 
-# Expose port
 EXPOSE 8080
 
-# Laravel cache
 RUN php artisan config:cache || true
 RUN php artisan route:cache || true
 RUN php artisan view:cache || true
 
-# Start Laravel server
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
